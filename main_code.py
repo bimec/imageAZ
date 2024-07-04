@@ -237,26 +237,18 @@ plt.figure(3)
 ax = plt.subplot(2,2,1)
 plt.title('Ground Tumour Mask - Layer Z={}'.format(img_z))
 plt.imshow(label)
-plt.xticks([])
-plt.yticks([])
 
 ax = plt.subplot(2,2,2)
 plt.title('Predicted Tumour Mask - Layer Z={}'.format(img_z))
 plt.imshow(masks)
-plt.xticks([])
-plt.yticks([])
 
 ax = plt.subplot(2,2,3)
 plt.title('Raw Image - Layer Z={}'.format(img_z))
 plt.imshow(img)
-plt.xticks([])
-plt.yticks([])
 
 ax = plt.subplot(2,2,4)
 plt.title('Tumour Image - Layer Z={}'.format(img_z))
 plt.imshow(img*masks)
-plt.xticks([])
-plt.yticks([])
 
 # =============================================================================
 #%% Tumour detection per folder
