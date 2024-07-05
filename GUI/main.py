@@ -88,7 +88,7 @@ class UI(QMainWindow, QApplication):
         self.ui.sb_tumourZ.valueChanged.connect(self.updateTSB_Z)
         
         ## Algorithms
-        model_path = r"C:/Users/wickramw/OneDrive - London South Bank University/Imaging-AZ/Software/MRI_seg_best.pt"
+        model_path = "MRI_seg_best.pt"
         self.roiProcessor = ROIProcessing()
         self.model = segmentTumour(model_path)
         return
@@ -419,9 +419,14 @@ class UI(QMainWindow, QApplication):
         return
     
     def getTFeatures(self):
+        try:
+            (self.t_contours == None)
+        except:
+            self.t_contours, _ = cv2.findContours(self.masks, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)        
+
         area_c = []
         perimeter = []
-        centers = []
+        centers = []        
         for cnt in self.t_contours:
             area_c.append(cv2.contourArea(cnt))
             perimeter.append(cv2.arcLength(cnt, True))          
