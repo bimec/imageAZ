@@ -385,7 +385,7 @@ class UI(QMainWindow, QApplication):
     
     def detectTumour(self):
         # get mask
-        self.masks, n_masks = self.model.predTumour(self.imageROI)
+        self.masks, n_masks, _ = self.model.predTumour(self.imageROI)
         self.ui.label_ntumour.setText(str(n_masks))
         
         #get mask image

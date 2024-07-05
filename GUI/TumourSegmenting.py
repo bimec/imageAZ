@@ -38,7 +38,7 @@ class segmentTumour:
             for i in range(n_masks):
                 full_mask = full_mask | masks[i]
             self.full_mask = full_mask
-        return self.full_mask, n_masks
+        return self.full_mask, n_masks, results
     
     def valdiateTumour(self, label):        
         self.label = label
@@ -79,7 +79,7 @@ if __name__ == '__main__':
     model = segmentTumour(model_path)
     
     # results
-    masks, n_masks = model.predTumour(image)
+    masks, n_masks, results = model.predTumour(image)
     dice_score = model.valdiateTumour(label)
     print('Dice Score: {}'.format(dice_score))
     
