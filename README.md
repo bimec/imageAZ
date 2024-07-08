@@ -4,13 +4,13 @@
 Code: https://github.com/bimec/image-AZ 
 The Python codes are made available via the above GitHub link. The following libraries are used for implementing the algorithms and please follow the instructions in the link for installation. The PyQt5 library is used to develop the GUI software and it is only required if GUI software is used for analysis. 
 
-* Numpy	For numerical operations	https://numpy.org/install/ 
-* Matplotlib 	For generating plots	https://matplotlib.org/stable/install/index.html
-* Sci-kit learn	For K-means clustering	https://scikit-learn.org/stable/install.html
-* Opencv	For handling images	https://opencv.org/get-started/
-* Nibabel	For reading .nii images	https://nipy.org/nibabel/installation.html
-* Pytorch-GPU	Backend for YOLO network	https://pytorch.org/get-started/locally/
-* Ultralytics	Implementing YOLO network	https://docs.ultralytics.com/quickstart/
+* Numpy	For numerical operations	<a href="https://numpy.org/install/" target="_blank">https://numpy.org/install/</a> 
+* Matplotlib 	For generating plots	<a href="https://matplotlib.org/stable/install/index.html" target="_blank">https://matplotlib.org/stable/install/index.html/</a> 
+* Sci-kit learn	For K-means clustering	<a href="https://scikit-learn.org/stable/install.html" target="_blank">https://scikit-learn.org/stable/install.html</a> 
+* Opencv	For handling images	<a href="https://opencv.org/get-started/" target="_blank">https://opencv.org/get-started/</a> 
+* Nibabel	For reading .nii images	<a href="https://nipy.org/nibabel/installation.html" target="_blank">https://nipy.org/nibabel/installation.html</a> 
+* Pytorch-GPU	Backend for YOLO network	<a href="https://pytorch.org/get-started/locally/" target="_blank">https://pytorch.org/get-started/locally/</a> 
+* Ultralytics	Implementing YOLO network	<a href="https://docs.ultralytics.com/quickstart/" target="_blank">https://docs.ultralytics.com/quickstart/</a> 
 
 ## GUI Software 
 The GUI software allows the analysis of each data file with the plots. There are 3 tabs,
