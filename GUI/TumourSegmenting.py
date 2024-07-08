@@ -29,7 +29,7 @@ class segmentTumour:
         self.mask = None
         return
     
-    def predTumour(self, image, imgsz=320, conf=0.25):        
+    def predTumour2(self, image, imgsz=320, conf=0.25):        
         results = self.model.predict(image, imgsz=320, conf=0.5)
         for i in range(len(results)):
             full_mask = np.zeros_like(image[:, :, 0])
@@ -39,6 +39,11 @@ class segmentTumour:
                 full_mask = full_mask | masks[i]
             self.full_mask = full_mask
         return self.full_mask, n_masks, results
+    
+    def predTumour(self, image, imgsz=320, conf=0.25):        
+        results = self.model.predict(image, imgsz=320, conf=0.5)
+        
+        return results
     
     def valdiateTumour(self, label):        
         self.label = label
