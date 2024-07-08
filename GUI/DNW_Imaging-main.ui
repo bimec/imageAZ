@@ -2510,20 +2510,20 @@ border-color: rgb(0, 0, 0);</string>
                <item row="1" column="1">
                 <widget class="QLabel" name="label_ROIName">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>0</width>
+                   <width>200</width>
                    <height>30</height>
                   </size>
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
+                   <pointsize>10</pointsize>
                   </font>
                  </property>
                  <property name="text">
@@ -2550,20 +2550,20 @@ border-color: rgb(0, 0, 0);</string>
                <item row="6" column="1">
                 <widget class="QLabel" name="label_tArea">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>0</width>
+                   <width>200</width>
                    <height>30</height>
                   </size>
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>12</pointsize>
+                   <pointsize>10</pointsize>
                   </font>
                  </property>
                  <property name="text">
@@ -2577,20 +2577,20 @@ border-color: rgb(0, 0, 0);</string>
                <item row="3" column="1">
                 <widget class="QLabel" name="label_dice">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>0</width>
+                   <width>200</width>
                    <height>30</height>
                   </size>
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
+                   <pointsize>10</pointsize>
                   </font>
                  </property>
                  <property name="text">
@@ -2660,20 +2660,20 @@ border-color: rgb(0, 0, 0);</string>
                <item row="8" column="1">
                 <widget class="QLabel" name="label_tCenters">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>0</width>
+                   <width>200</width>
                    <height>30</height>
                   </size>
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>12</pointsize>
+                   <pointsize>10</pointsize>
                   </font>
                  </property>
                  <property name="text">
@@ -2687,20 +2687,20 @@ border-color: rgb(0, 0, 0);</string>
                <item row="2" column="1">
                 <widget class="QLabel" name="label_ntumour">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>0</width>
+                   <width>200</width>
                    <height>30</height>
                   </size>
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>11</pointsize>
+                   <pointsize>10</pointsize>
                   </font>
                  </property>
                  <property name="text">
@@ -2741,20 +2741,20 @@ border-color: rgb(0, 0, 0);</string>
                <item row="7" column="1">
                 <widget class="QLabel" name="label_tPerimeter">
                  <property name="sizePolicy">
-                  <sizepolicy hsizetype="Preferred" vsizetype="Fixed">
+                  <sizepolicy hsizetype="Fixed" vsizetype="Fixed">
                    <horstretch>0</horstretch>
                    <verstretch>0</verstretch>
                   </sizepolicy>
                  </property>
                  <property name="minimumSize">
                   <size>
-                   <width>0</width>
+                   <width>200</width>
                    <height>30</height>
                   </size>
                  </property>
                  <property name="font">
                   <font>
-                   <pointsize>12</pointsize>
+                   <pointsize>10</pointsize>
                   </font>
                  </property>
                  <property name="text">

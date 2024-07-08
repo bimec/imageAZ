@@ -250,25 +250,6 @@ ax = plt.subplot(2,2,4)
 plt.title('Tumour Image - Layer Z={}'.format(img_z))
 plt.imshow(img*masks)
 
-# =============================================================================
-#%% Tumour detection per folder
-# =============================================================================
-# from ultralytics import YOLO
-# model_path = r"C:/Users/wickramw/OneDrive - London South Bank University/Imaging-AZ/Models/MRI_seg_best.pt"
-# test_folder = r"D:\image-AZ\temp\yolo-roi-320-vl-moredata-20240626T155008Z-001\yolo-roi-320-vl-moredata\datasets2\image-raw-final-3\test\images"
-# test_images = []
-# for i in os.listdir(test_folder):
-#     test_images.append(test_folder + '/' + i)
 
-# model = YOLO(model_path)
-# results = model.predict(test_images, imgsz=320, conf=0.25)
-# masks = results[0].masks.data.cpu().numpy()[0]
-
-# # results
-# label = label_data[:,:,img_z]
-# dice_score = 2*(np.sum(masks*label))/(np.sum(masks) + np.sum(label))
-# mAP = 2*(np.sum(masks*label))/(np.sum(masks) + np.sum(label))
-# print(dice_score)
-## plots
 
 

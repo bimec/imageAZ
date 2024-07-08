@@ -33,27 +33,103 @@ class segmentTumour:
         self.results = self.model.predict(image, imgsz=320, conf=0.5)
         return self.results
     
-    def valdiateTumour(self, label):        
-        self.label = label
-        dice_score = 2*(np.sum(self.full_mask*self.label))/(np.sum(self.full_mask) + np.sum(self.label))   
-        return dice_score
     
-    def drawMask(self, image, mask_generated, color=[0,0,150]):
-        # masked_image = image.copy()
-        # image += 10
-        try:
-            masked_image = cv2.cvtColor(image.copy(), cv2.COLOR_GRAY2RGB)
-        except Exception as e:
-            # print(e)
-            masked_image = image.copy()
+    def segmentSummary(self):
+        # Segmentation
+        results = self.results
+        header_summary = ['file', 'name', 'class', 'confidence', 'box', 'segments']
+        summary = []
+        for i in range(len(results)):
+            # print(i)
+            img_res = results[i].cpu().summary()
+            row = dict.fromkeys(header_summary)
             
-        mask_generated = cv2.cvtColor(self.full_mask, cv2.COLOR_GRAY2RGB)
+            if(len(img_res) > 0):
+                for t in range(len(img_res)):
+                    row[header_summary[0]] = 'roiImg_Z{}.png'.format(i)   
+                    for ele in header_summary[1:]:
+                        row[ele] = img_res[t][ele]
+                    summary.append(row)
+            else:
+                row[header_summary[0]] = 'roiImg_Z{}.png'.format(i)   
+                for ele in header_summary[1:]:
+                    row[ele] = '-'
+                summary.append(row)
         
-        print(mask_generated.shape, masked_image.shape)
+        return summary
+    
+    def diceScore(self, mask):
+        # DICE Score
+        results = self.results
+        header_dice = ['file', 'dice']
+        dice = []
+        for i in range(len(results)):
+            d = {header_dice[0] : 'roiImg_Z{}.png'.format(i)}   
+            img_mask = results[i].cpu().masks
+            if(img_mask == None):
+                d[header_dice[1]] = 0/np.sum(mask[:,:,i])
+            else:
+                img_mask = img_mask.data.numpy()
+                img_mask = (np.sum(img_mask, axis=0) > 0)
+                d[header_dice[1]] = 2*np.sum(img_mask * mask[:,:,i])/(np.sum(img_mask) + np.sum(mask[:,:,i]))
+            dice.append(d)
+        return dice
+    
+    def tumourPlots(self):
+        # Tumour plots
+        results = self.results
+        header_predImg = ['file', 'predImg']
+        predImg = []
+        for i in range(len(results)):
+            img = {header_predImg[0] : 'roiImg_Z{}.png'.format(i)} 
+            img[header_predImg[1]] = results[i].plot()
+            predImg.append(img)
+            
+        return predImg
+
+
+    def tumourFeatures(self):
+        # Tumour features
+        results = self.results
+        header_tumFeatures = ['file', 'area', 'perimeter', 'center']
+        tfeatures = []
+        for i in range(len(results)):
+            img_mask = results[i].cpu().masks
+            row = {}
+            if(img_mask != None):
+                row[header_tumFeatures[0]] = 'roiImg_Z{}.png'.format(i)
+                
+                img_mask = img_mask.data.numpy()
+                img_mask = (np.sum(img_mask, axis=0) > 0)
+                
+                contours, hierarchy = cv2.findContours(img_mask.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
+                
+                area = []
+                perimeter = []
+                centers = []
+                for i in range(len(contours)):
+                    cnt = contours[i]
+                    area.append(cv2.contourArea(cnt))
+                    perimeter.append(cv2.arcLength(cnt,True))
+                    if(area[-1]>0):
+                        M = cv2.moments(cnt)
+                        centers.append((int(M['m10']/M['m00']), int(M['m01']/M['m00'])))
+                    else:
+                        centers.append('-')
+                
+                row[header_tumFeatures[1]] = area
+                row[header_tumFeatures[2]] = perimeter
+                row[header_tumFeatures[3]] = centers  
+                tfeatures.append(row)
+            
+            else:
+               row[header_tumFeatures[0]] = 'roiImg_Z{}.png'.format(i)   
+               for ele in header_tumFeatures[1:]:
+                   row[ele] = '-'
+               tfeatures.append(row)
         
-        masked_image = np.where(mask_generated.astype(int), np.array(color, dtype='uint8'), masked_image)
-        masked_image = masked_image.astype(np.uint8)
-        return cv2.addWeighted(image, 1, masked_image, 0.5, 0)
+        return tfeatures
+        
 
 # =============================================================================
 #%% Tumour detection per file
@@ -66,36 +142,32 @@ if __name__ == '__main__':
     
     # load images
     image = cv2.imread(image_path)
-    label = cv2.imread(label_path, cv2.COLOR_BGR2GRAY)/255
+    mask_data = cv2.imread(label_path, cv2.COLOR_BGR2GRAY)/255
+    mask_data = mask_data.reshape(mask_data.shape[0], mask_data.shape[1], 1)
     
     # load segmentTumour
     model = segmentTumour(model_path)
     
     # results
-    masks, n_masks = model.predTumour(image)
-    dice_score = model.valdiateTumour(label)
-    print('Dice Score: {}'.format(dice_score))
-    
-    # get mask
-    mask_image = model.drawMask(image, masks)
+    results = model.predTumour(image)
+    summary = model.segmentSummary()
+    dice = model.diceScore(mask_data)
+    predImg = model.tumourPlots()
+    tfeatures = model.tumourFeatures()
     
     ## plots
     plt.figure(3)
-    ax = plt.subplot(2,2,1)
+    ax = plt.subplot(1,3,1)
     plt.title('Ground Tumour Mask')
-    plt.imshow(label)
+    plt.imshow(mask_data[:,:,0])
     
-    ax = plt.subplot(2,2,2)
-    plt.title('Predicted Tumour Mask')
-    plt.imshow(masks)
-    
-    ax = plt.subplot(2,2,3)
+    ax = plt.subplot(1,3,2)
     plt.title('Raw Image')
     plt.imshow(cv2.cvtColor(image, cv2.COLOR_BGR2GRAY))
     
-    ax = plt.subplot(2,2,4)
-    plt.title('Tumour Image')
-    plt.imshow(mask_image)#cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)*masks)
-
-    # cv2.imshow('img', mask_image)
+    ax = plt.subplot(1,3,3)
+    plt.title('Predicted Tumour Mask')
+    plt.imshow(predImg[0]['predImg'])
+    
+    
 

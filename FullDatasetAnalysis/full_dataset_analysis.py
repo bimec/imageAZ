@@ -23,14 +23,14 @@ from TumourSegmenting import segmentTumour
 # %% Load dataset
 # =============================================================================
 # MRI
-f_mri  = r"C:\Users\wickramw\OneDrive - London South Bank University\Imaging-AZ\dataset-types\dataset-orig\train\45_post_24h_rare.nii.gz"
+f_mri  = r"C:/Users/wickramw/OneDrive - London South Bank University/Imaging-AZ/image-AZ-git/image-AZ/dataset/train/21_baseline_rare.nii.gz"
 # f_mri = r"{}".format(input("Enter the path for image: "))
 mri_data = nib.load(f_mri)
 mri_data = mri_data.get_fdata()
 
 
 # Masks
-f_mask = r"C:\Users\wickramw\OneDrive - London South Bank University\Imaging-AZ\dataset-types\dataset-orig\train\21_post_15min_rare.nii.gz"
+f_mask = r"C:/Users/wickramw/OneDrive - London South Bank University/Imaging-AZ/image-AZ-git/image-AZ/dataset/train_labels/21_baseline_rare.nii.gz"
 # f_mask = r"{}".format(input("Enter the path for label: "))
 # f_mask = f_mask = f_mri.split("train")[0] + "train_labels" +f_mri.split("train")[1]
 mask_data = nib.load(f_mask)
@@ -40,16 +40,16 @@ mask_data = mask_data.get_fdata()
 # %% Save data as images 
 # =============================================================================
 print("Savin raw images..!")
-save_folder = r'D:\image-AZ\myanalysis'
+save_folder = r'C:/Users/wickramw/OneDrive - London South Bank University/Imaging-AZ/image-AZ-git/image-AZ/FullDatasetAnalysis'
 try:
-    save_folder_output = save_folder + '/{}_output'.format(f_mri.split('\\')[-1])
+    save_folder_output = save_folder + '/output'
     os.mkdir(save_folder_output)
 except:
     pass
 
 # save MRI images
 try:
-    save_folder_output_rawMri = save_folder_output + '/{}_rawMRI'.format(f_mri.split('\\')[-1])
+    save_folder_output_rawMri = save_folder_output + '/rawMRI'
     os.mkdir(save_folder_output_rawMri)
     
     for i in range(mri_data.shape[-1]):
@@ -62,7 +62,7 @@ except Exception as e:
 
 # save Mask images
 try:
-    save_folder_output_rawMask = save_folder_output + '/{}_rawMask'.format(f_mask.split('\\')[-1])
+    save_folder_output_rawMask = save_folder_output + '/rawMask'
     os.mkdir(save_folder_output_rawMask)
     
     for i in range(mask_data.shape[-1]):
@@ -93,7 +93,7 @@ for i in range(mri_data.shape[-1]):
 print("Saving ROIs..!")
 # save ROI images
 try:
-    save_folder_output_roiMri = save_folder_output + '/{}_roiMRI'.format(f_mri.split('\\')[-1])
+    save_folder_output_roiMri = save_folder_output + '/roiMRI'
     os.mkdir(save_folder_output_roiMri)
     
     for i in range(roi_data.shape[-1]):
@@ -119,85 +119,16 @@ for i in range(roi_data.shape[-1]):
 results = model.predTumour(x_input)
 
 # Segmentation
-header_summary = ['file', 'name', 'class', 'confidence', 'box', 'segments']
-summary = []
-for i in range(len(x_input)):
-    print(i)
-    img_res = results[i].cpu().summary()
-    row = dict.fromkeys(header_summary)
-    
-    if(len(img_res) > 0):
-        for t in range(len(img_res)):
-            row[header_summary[0]] = 'roiImg_Z{}.png'.format(i)   
-            for ele in header_summary[1:]:
-                row[ele] = img_res[t][ele]
-            summary.append(row)
-    else:
-        row[header_summary[0]] = 'roiImg_Z{}.png'.format(i)   
-        for ele in header_summary[1:]:
-            row[ele] = '-'
-        summary.append(row)
+summary = model.segmentSummary()
        
 # DICE Score
-header_dice = ['file', 'dice']
-dice = []
-for i in range(len(x_input)):
-    d = {header_dice[0] : 'roiImg_Z{}.png'.format(i)}   
-    img_mask = results[i].cpu().masks
-    if(img_mask == None):
-        d[header_dice[1]] = 0/np.sum(mask_data[:,:,i])
-    else:
-        img_mask = img_mask.data.numpy()
-        img_mask = (np.sum(img_mask, axis=0) > 0)
-        d[header_dice[1]] = 2*np.sum(img_mask * mask_data[:,:,i])/(np.sum(img_mask) + np.sum(mask_data[:,:,i]))
-    dice.append(d)
+dice = model.diceScore(mask_data)
 
 # Tumour plots
-header_predImg = ['file', 'predImg']
-predImg = []
-for i in range(len(x_input)):
-    img = {header_predImg[0] : 'roiImg_Z{}.png'.format(i)} 
-    img[header_predImg[1]] = results[i].plot()
-    predImg.append(img)
+predImg = model.tumourPlots()
 
 # Tumour features
-header_tumFeatures = ['file', 'area', 'perimeter', 'center']
-tfeatures = []
-for i in range(len(x_input)):
-    img_mask = results[i].cpu().masks
-    row = {}
-    if(img_mask != None):
-        row[header_tumFeatures[0]] = 'roiImg_Z{}.png'.format(i)
-        
-        img_mask = img_mask.data.numpy()
-        img_mask = (np.sum(img_mask, axis=0) > 0)
-        
-        contours, hierarchy = cv2.findContours(img_mask.astype(np.uint8), cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        
-        area = []
-        perimeter = []
-        centers = []
-        for i in range(len(contours)):
-            cnt = contours[i]
-            area.append(cv2.contourArea(cnt))
-            perimeter.append(cv2.arcLength(cnt,True))
-            if(area[-1]>0):
-                M = cv2.moments(cnt)
-                centers.append((int(M['m10']/M['m00']), int(M['m01']/M['m00'])))
-            else:
-                centers.append('-')
-        
-        row[header_tumFeatures[1]] = area
-        row[header_tumFeatures[2]] = perimeter
-        row[header_tumFeatures[3]] = centers  
-        tfeatures.append(row)
-    
-    else:
-       row[header_tumFeatures[0]] = 'roiImg_Z{}.png'.format(i)   
-       for ele in header_tumFeatures[1:]:
-           row[ele] = '-'
-       tfeatures.append(row)
-        
+tfeatures = model.tumourFeatures()
 
 
 
@@ -213,7 +144,7 @@ print("Saving Predictions..!")
 
 try:
     # CSVs
-    save_folder_output_resultsMri = save_folder_output + '/{}_resultsMRI'.format(f_mri.split('\\')[-1])
+    save_folder_output_resultsMri = save_folder_output + '/resultsMRI'
     os.mkdir(save_folder_output_resultsMri)
     
     # summary csv
@@ -231,7 +162,7 @@ try:
         dict_writer.writerows(dice)
     
     # # Segmentation images
-    save_folder_output_resultspredImg = save_folder_output + '/{}_predImg'.format(f_mri.split('\\')[-1])
+    save_folder_output_resultspredImg = save_folder_output + '/predImg'
     os.mkdir(save_folder_output_resultspredImg)
     
     # predImages

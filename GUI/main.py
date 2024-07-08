@@ -133,10 +133,11 @@ class UI(QMainWindow, QApplication):
         # Canvas
         canvas = MplCanvas(self, dpi=50, projection='2d')
         if(dtype == 'img'):
-            canvas.axes.imshow(data, cmap='gist_earth', interpolation='nearest', origin='lower')
+            canvas.axes.imshow(np.flip(data, axis=0), cmap='gist_earth', interpolation='nearest', origin='lower')
             canvas.axes.get_xaxis().set_ticks([]);   
             canvas.axes.get_yaxis().set_ticks([])
             canvas.fig.canvas.draw()
+            
         elif(dtype == 'hist'):
             if('range' in kwargs.keys()):
                 canvas.axes.hist(data.flatten(), bins=255, range=kwargs['range'], density=None, weights=None)
@@ -341,8 +342,8 @@ class UI(QMainWindow, QApplication):
     def exportROI(self):
         file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
         try:
-            os.mkdir(file + r"/roi")
-            save_folder = file + r"/roi"
+            # os.mkdir(file + r"/roi")
+            save_folder = file #+ r"/roi"
             img_save = self.img_ROI/self.img_ROI.max()*255
             img_name = r'/ROI_Image_{}.png'.format(self.ui.label_imageName.text().split('_')[-1])
             print(save_folder + img_name)
@@ -385,62 +386,69 @@ class UI(QMainWindow, QApplication):
     
     def detectTumour(self):
         # get mask
-        self.masks, n_masks, _ = self.model.predTumour(self.imageROI)
-        self.ui.label_ntumour.setText(str(n_masks))
+        self.results = self.model.predTumour(self.imageROI)
+        self.summary = self.model.segmentSummary()
+        self.predImg = self.model.tumourPlots()
         
-        #get mask image
-        self.image_tumour = self.model.drawMask(self.imageROI, self.masks)
+        
+        # mask
+        img_mask = self.results[0].cpu().masks
+        if(img_mask != None):
+            img_mask = img_mask.data.numpy()
+            
+            self.ui.label_ntumour.setText(str(len(img_mask)))
+            
+            img_mask = (np.sum(img_mask, axis=0) > 0)
+            img_tumor = cv2.cvtColor(self.imageROI, cv2.COLOR_BGR2GRAY) * img_mask
+        else:
+            img_mask = 0
+            img_tumor = cv2.cvtColor(self.imageROI, cv2.COLOR_BGR2GRAY) * img_mask
+            self.ui.label_ntumour.setText("No Tumour")
         
         # plot
-        self.setScene(self.ui.plot_predImage, self.image_tumour, 'img', dlayout= True)         
+        self.setScene(self.ui.plot_predImage, img_tumor, 'img', dlayout= True)         
         
         # hist
-        hist_img = cv2.cvtColor(self.imageROI, cv2.COLOR_BGR2GRAY) * self.masks
-        self.setScene(self.ui.plot_THist, hist_img, 'hist', dlayout= True, range=(1, hist_img.max())) 
+        self.setScene(self.ui.plot_THist, img_tumor, 'hist', dlayout= True, range=(1, max(img_tumor.max(),5))) 
         return
     
     def validate(self):
         file, _ = QFileDialog.getOpenFileName(self, 'Single File', '', "Images (*.png *.xpm *.jpg)")
         label = cv2.imread(file, cv2.COLOR_BGR2GRAY)/255
-        dice_score = self.model.valdiateTumour(label)
-        self.ui.label_dice.setText(str(np.format_float_positional(dice_score, precision=3)))
-        print('Dice Score: {}'.format(dice_score))
+        label = label.reshape(label.shape[0], label.shape[1], 1)
         
+        if(self.results[0].cpu().masks != None):
+            
+            dice_score = self.model.diceScore(label)
+            self.ui.label_dice.setText(str(np.format_float_positional(dice_score[0]['dice'], precision=3)))
+            # print('Dice Score: {}'.format(dice_score))
+        else:
+            self.ui.label_dice.setText('nan')
+            
         # plot
-        img = self.imageROI.copy()
-        label = label.astype(np.uint8) #cv2.imread(file, cv2.COLOR_BGR2GRAY)
-        l_contours, _ = cv2.findContours(label, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        cv2.drawContours(img, l_contours, -1, (255,0,0), 3)
-        self.t_contours, _ = cv2.findContours(self.masks, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)
-        cv2.drawContours(img, self.t_contours, -1, (0,0,255), 3)
-        
-        self.setScene(self.ui.plot_valImage, img, 'img', dlayout= True)  
+        self.setScene(self.ui.plot_valImage, self.predImg[0]['predImg'], 'img', dlayout= True)  
     
         return
     
     def getTFeatures(self):
-        try:
-            (self.t_contours == None)
-        except:
-            self.t_contours, _ = cv2.findContours(self.masks, cv2.RETR_TREE, cv2.CHAIN_APPROX_NONE)        
-
-        area_c = []
-        perimeter = []
-        centers = []        
-        for cnt in self.t_contours:
-            area_c.append(cv2.contourArea(cnt))
-            perimeter.append(cv2.arcLength(cnt, True))          
-            M = cv2.moments(cnt)
-            centers.append([int(M['m10']/M['m00']), int(M['m01']/M['m00'])])            
+        if(self.results[0].cpu().masks != None):
+            self.tfeatures = self.model.tumourFeatures()
         
-        area_c = np.array(area_c)
-        perimeter = np.array(perimeter)
-        centers = np.array(centers)
-        
-        # update labels
-        self.ui.label_tArea.setText(str(np.format_float_positional(np.sum(area_c), precision=3)))
-        self.ui.label_tPerimeter.setText(str(np.format_float_positional(np.sum(perimeter), precision=3)))
-        self.ui.label_tCenters.setText(str(np.format_float_positional(np.sum(centers, axis=1), precision=3)))
+            area = np.round(self.tfeatures[0]['area'])
+            perimeter = np.round(self.tfeatures[0]['perimeter'])
+            centers = np.round(self.tfeatures[0]['center'])
+            
+            # update labels
+            self.ui.label_tArea.setText(str(area))
+            self.ui.label_tPerimeter.setText(str(perimeter))
+            self.ui.label_tCenters.setText(str(centers))
+            
+        else:
+            # update labels
+            self.ui.label_tArea.setText('nan')
+            self.ui.label_tPerimeter.setText('nan')
+            self.ui.label_tCenters.setText('nan')
+            
         return
     
     def clearTumour(self):
