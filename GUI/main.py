@@ -31,8 +31,8 @@ import os
 import numpy as np
 
 # Algorithms
-from ROIProcessing import ROIProcessing
-from TumourSegmenting import segmentTumour
+from .ROIProcessing import ROIProcessing
+from .TumourSegmenting import segmentTumour
 
 class MplCanvas(FigureCanvasQTAgg):
 
