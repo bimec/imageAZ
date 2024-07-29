@@ -28,11 +28,16 @@ import nibabel as nib
 import matplotlib.pyplot as plt
 import cv2
 import os
+from pathlib import Path
 import numpy as np
+import csv
 
 # Algorithms
-from .ROIProcessing import ROIProcessing
-from .TumourSegmenting import segmentTumour
+os.chdir('.')
+from Algorithms.ROIProcessing import ROIProcessing
+from Algorithms.TumourSegmenting import segmentTumour
+model_path = Path("Algorithms/MRI_seg_best.pt")
+model = segmentTumour(model_path)
 
 class MplCanvas(FigureCanvasQTAgg):
 
@@ -56,7 +61,8 @@ class UI(QMainWindow, QApplication):
     def __init__(self):
         ## Set ui
         super(UI, self).__init__()
-        self.ui = uic.loadUi("DNW_Imaging-main.ui", self)
+        self.ui = uic.loadUi(Path("GUI/DNW_Imaging-main.ui"), self)
+        self.ui.tabWidget.setCurrentIndex(0)
         
         ## Buttons
         # Tab 1
@@ -78,6 +84,7 @@ class UI(QMainWindow, QApplication):
         self.ui.btn_validate.clicked.connect(self.validate)
         self.ui.btn_tFeature.clicked.connect(self.getTFeatures)
         self.ui.btn_clearTumour.clicked.connect(self.clearTumour)
+        self.ui.btn_exportTumour.clicked.connect(self.saveSummary)
         
         ## SpinBox
         self.ui.sb_rawX.valueChanged.connect(self.updateRSB_X)
@@ -87,8 +94,8 @@ class UI(QMainWindow, QApplication):
         self.ui.sb_tumourY.valueChanged.connect(self.updateTSB_Y)
         self.ui.sb_tumourZ.valueChanged.connect(self.updateTSB_Z)
         
+        
         ## Algorithms
-        model_path = "MRI_seg_best.pt"
         self.roiProcessor = ROIProcessing()
         self.model = segmentTumour(model_path)
         return
@@ -419,8 +426,8 @@ class UI(QMainWindow, QApplication):
         
         if(self.results[0].cpu().masks != None):
             
-            dice_score = self.model.diceScore(label)
-            self.ui.label_dice.setText(str(np.format_float_positional(dice_score[0]['dice'], precision=3)))
+            self.dice_score = self.model.diceScore(label)
+            self.ui.label_dice.setText(str(np.format_float_positional(self.dice_score[0]['dice'], precision=3)))
             # print('Dice Score: {}'.format(dice_score))
         else:
             self.ui.label_dice.setText('nan')
@@ -466,6 +473,39 @@ class UI(QMainWindow, QApplication):
         self.clearScene(self.ui.plot_THist)
         self.clearScene(self.ui.plot_valImage)
         return
+
+    def saveSummary(self):
+        # CSVs
+        save_folder_output_resultsMri = file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
+        
+        # dice_score
+        if( hasattr(self, 'dice_score') ):
+            keys = self.dice_score[0].keys()
+            with open(Path(save_folder_output_resultsMri, 'dice_score.csv'), 'w', newline='') as f:
+                dict_writer = csv.DictWriter(f, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(self.dice_score)
+    
+        # Tumour features
+        if( hasattr(self, 'tfeatures') ):
+            keys = self.tfeatures[0].keys()
+            with open(Path(save_folder_output_resultsMri, 'tfeatures.csv'), 'w', newline='') as f:
+                dict_writer = csv.DictWriter(f, keys)
+                dict_writer.writeheader()
+                dict_writer.writerows(self.tfeatures)
+        
+        # Segmentation images
+        for i in range(len(self.predImg)):
+            img_name = Path(save_folder_output_resultsMri, 'predImg_Z{}.png'.format(i))
+            cv2.imwrite(img_name, self.predImg[0]['predImg'])
+            
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Information)
+        msg.setWindowTitle("Sucessful")
+        msg.setText('Export Completed! Export to {}'.format(file))
+        msg.exec_()
+        msg.show()
+        return
     
     def closeEvent(self, a):
         QApplication.quit()
@@ -476,7 +516,7 @@ class UI(QMainWindow, QApplication):
 def main():
     app = QApplication(sys.argv)
     window = UI()
-    window.setWindowTitle("Radar Network Data Viewer")
+    window.setWindowTitle("Image-AZ GUI")
     window.show() 
     app.exec()
     
