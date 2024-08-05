@@ -175,118 +175,118 @@ class UI(QMainWindow, QApplication):
     
     def loadMRI(self):
         self.clearRaw()
-        file, _ = QFileDialog.getOpenFileName(self, 'Single File', '', '*.nii.gz')
-        file = Path(file)
-
-        if(file.exists()):
-            self.ui.label_MRIFile.setText(file.name)
-            
-            img_dose = nib.load(file)
-            self.data_d = img_dose.get_fdata()
-            
-            ## slider 
-            img_data_xy = self.data_d[:, :, 0] #Z slider 
-            img_data_yz = self.data_d[0, :, :] # X slider
-            img_data_zx = self.data_d[:, 0, :] #Y Slider
-            
-            ## Plots - Raw
-            self.setScene(self.ui.plot_ImgXY, img_data_xy, 'img', dlayout= True) # XY
-            self.setScene(self.ui.plot_ImgYZ, img_data_yz, 'img', dlayout= False) # YZ
-            self.setScene(self.ui.plot_ImgZX, img_data_zx.T, 'img', dlayout= False) #ZX
-    
-            ## Histograms - Raw
-            self.setScene(self.ui.plot_HistXY, img_data_xy, 'hist', dlayout= True) # XY
-            self.setScene(self.ui.plot_HistYZ, img_data_yz, 'hist', dlayout= True) # YZ
-            self.setScene(self.ui.plot_HistZX, img_data_zx, 'hist', dlayout= True) #ZX
+        file = QFileDialog.getOpenFileName(self, 'Single File', '', '*.nii.gz')
+        
+        if(file[1]!=''):
+            file = Path(file[0])
+            if(file.exists()):
+                self.ui.label_MRIFile.setText(file.name)
+                
+                img_dose = nib.load(file)
+                self.data_d = img_dose.get_fdata()
+                
+                ## slider 
+                img_data_xy = self.data_d[:, :, 0] #Z slider 
+                img_data_yz = self.data_d[0, :, :] # X slider
+                img_data_zx = self.data_d[:, 0, :] #Y Slider
+                
+                ## Plots - Raw
+                self.setScene(self.ui.plot_ImgXY, img_data_xy, 'img', dlayout= True) # XY
+                self.setScene(self.ui.plot_ImgYZ, img_data_yz, 'img', dlayout= False) # YZ
+                self.setScene(self.ui.plot_ImgZX, img_data_zx.T, 'img', dlayout= False) #ZX
+        
+                ## Histograms - Raw
+                self.setScene(self.ui.plot_HistXY, img_data_xy, 'hist', dlayout= True) # XY
+                self.setScene(self.ui.plot_HistYZ, img_data_yz, 'hist', dlayout= True) # YZ
+                self.setScene(self.ui.plot_HistZX, img_data_zx, 'hist', dlayout= True) #ZX
        
         return
     
     def loadMask(self):    
-        file, _ = QFileDialog.getOpenFileName(self, 'Single File', '', '*.nii.gz')
-        file = Path(file)
+        file = QFileDialog.getOpenFileName(self, 'Single File', '', '*.nii.gz')
 
-        if(file.exists()):
-            self.ui.label_MRIMask.setText(file.name)
-            
-            img_dl = nib.load(file)
-            self.data_dl = img_dl.get_fdata()
-            
-            ## slider 
-            img_data_txy = (self.data_dl*self.data_d)[:, :, 0] #Z slider 
-            img_data_tyz = (self.data_dl*self.data_d)[0, :, :] # X slider
-            img_data_tzx = (self.data_dl*self.data_d)[:, 0, :] #Y Slider
-            
-            ## Plots - Tumour
-            self.setScene(self.ui.plot_TImgXY, img_data_txy, 'img', dlayout= True) # XY
-            self.setScene(self.ui.plot_TImgYZ, img_data_tyz, 'img', dlayout= False) # YZ
-            self.setScene(self.ui.plot_TImgZX, img_data_tzx.T, 'img', dlayout= False) #ZX
-    
-            ## Histograms - Raw
-            self.setScene(self.ui.plot_THistXY, img_data_txy, 'hist', dlayout= True, range=(1, max(2, img_data_txy.max()))) # XY
-            self.setScene(self.ui.plot_THistYZ, img_data_tyz, 'hist', dlayout= True, range=(1, max(2, img_data_tyz.max()))) # YZ
-            self.setScene(self.ui.plot_THistZX, img_data_tzx, 'hist', dlayout= True, range=(1, max(2, img_data_tzx.max()))) #ZX
+        if(file[1]!=''):
+            file = Path(file[0])
+            if(file.exists()):
+                self.ui.label_MRIMask.setText(file.name)
+                
+                img_dl = nib.load(file)
+                self.data_dl = img_dl.get_fdata()
+                
+                ## slider 
+                img_data_txy = (self.data_dl*self.data_d)[:, :, 0] #Z slider 
+                img_data_tyz = (self.data_dl*self.data_d)[0, :, :] # X slider
+                img_data_tzx = (self.data_dl*self.data_d)[:, 0, :] #Y Slider
+                
+                ## Plots - Tumour
+                self.setScene(self.ui.plot_TImgXY, img_data_txy, 'img', dlayout= True) # XY
+                self.setScene(self.ui.plot_TImgYZ, img_data_tyz, 'img', dlayout= False) # YZ
+                self.setScene(self.ui.plot_TImgZX, img_data_tzx.T, 'img', dlayout= False) #ZX
+        
+                ## Histograms - Raw
+                self.setScene(self.ui.plot_THistXY, img_data_txy, 'hist', dlayout= True, range=(1, max(2, img_data_txy.max()))) # XY
+                self.setScene(self.ui.plot_THistYZ, img_data_tyz, 'hist', dlayout= True, range=(1, max(2, img_data_tyz.max()))) # YZ
+                self.setScene(self.ui.plot_THistZX, img_data_tzx, 'hist', dlayout= True, range=(1, max(2, img_data_tzx.max()))) #ZX
         return
     
     def exportMRI(self):
-        file, a = QFileDialog.getExistingDirectory(self, "Select Directory")
+        file = QFileDialog.getExistingDirectory(self, "Select Directory")
 
-        print(file, a)
-        
-        file = Path(file)
-        print(file, a)
+        if(file !=''):
+            file = Path(file)
 
-        if(file.exists()):
-            try:
-                raw_file = Path(file, 'raw')
-                raw_file.mkdir()
-                mask_file = Path(file, 'mask')
-                mask_file.mkdir()
-                tumour_file = Path(file, 'tumour_label')
-                tumour_file.mkdir()
-                
-                save_folder = raw_file
-                n_images = self.data_d.shape[-1]
-                for img_i in range(n_images):
-                    img_data_xy = self.data_d[:,:,img_i]
-                    if(img_data_xy.max()>0):
-                        img_data_xy = img_data_xy/img_data_xy.max()*255 if(img_data_xy.max()!=0) else img_data_xy
-                    img_name = Path(save_folder, 'raw_z-{}.png'.format(img_i))
-                    cv2.imwrite(img_name, img_data_xy)
+            if(file.exists()):
+                try:
+                    raw_file = Path(file, 'raw')
+                    raw_file.mkdir()
+                    mask_file = Path(file, 'mask')
+                    mask_file.mkdir()
+                    tumour_file = Path(file, 'tumour_label')
+                    tumour_file.mkdir()
                     
-                save_folder = mask_file
-                n_images = (self.data_dl).shape[-1]
-                for img_i in range(n_images):
-                    img_data_xy = (self.data_dl)[:,:,img_i]
-                    if(img_data_xy.max()>0):
-                        img_data_xy = img_data_xy/img_data_xy.max()*255 if(img_data_xy.max()!=0) else img_data_xy
-                    img_name = Path(save_folder, 'mask_z-{}.png'.format(img_i))
-                    cv2.imwrite(img_name, img_data_xy)
+                    save_folder = raw_file
+                    n_images = self.data_d.shape[-1]
+                    for img_i in range(n_images):
+                        img_data_xy = self.data_d[:,:,img_i]
+                        if(img_data_xy.max()>0):
+                            img_data_xy = img_data_xy/img_data_xy.max()*255 if(img_data_xy.max()!=0) else img_data_xy
+                        img_name = Path(save_folder, 'raw_z-{}.png'.format(img_i))
+                        cv2.imwrite(img_name, img_data_xy)
+                        
+                    save_folder = mask_file
+                    n_images = (self.data_dl).shape[-1]
+                    for img_i in range(n_images):
+                        img_data_xy = (self.data_dl)[:,:,img_i]
+                        if(img_data_xy.max()>0):
+                            img_data_xy = img_data_xy/img_data_xy.max()*255 if(img_data_xy.max()!=0) else img_data_xy
+                        img_name = Path(save_folder, 'mask_z-{}.png'.format(img_i))
+                        cv2.imwrite(img_name, img_data_xy)
+                    
+                    save_folder = tumour_file
+                    n_images = (self.data_dl*self.data_d).shape[-1]
+                    for img_i in range(n_images):
+                        img_data_xy = (self.data_dl*self.data_d)[:,:,img_i]
+                        if(img_data_xy.max()>0):
+                            img_data_xy = img_data_xy/img_data_xy.max()*255 if(img_data_xy.max()!=0) else img_data_xy
+                        img_name = Path(save_folder, 'tumour_z-{}.png'.format(img_i))
+                        cv2.imwrite(img_name, img_data_xy)
+                         
+                except Exception as e:
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Critical)
+                    msg.setWindowTitle("Export Error")
+                    msg.setText(str(e))
+                    msg.exec_()
+                    msg.show()
                 
-                save_folder = tumour_file
-                n_images = (self.data_dl*self.data_d).shape[-1]
-                for img_i in range(n_images):
-                    img_data_xy = (self.data_dl*self.data_d)[:,:,img_i]
-                    if(img_data_xy.max()>0):
-                        img_data_xy = img_data_xy/img_data_xy.max()*255 if(img_data_xy.max()!=0) else img_data_xy
-                    img_name = Path(save_folder, 'tumour_z-{}.png'.format(img_i))
-                    cv2.imwrite(img_name, img_data_xy)
-                     
-            except Exception as e:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Critical)
-                msg.setWindowTitle("Export Error")
-                msg.setText(str(e))
-                msg.exec_()
-                msg.show()
+                else:
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setWindowTitle("Sucessful")
+                    msg.setText('Export Completed! Export to {}'.format(file))
+                    msg.exec_()
+                    msg.show()
             
-            else:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Information)
-                msg.setWindowTitle("Sucessful")
-                msg.setText('Export Completed! Export to {}'.format(file))
-                msg.exec_()
-                msg.show()
-        
         return
     
     def clearRaw(self):
@@ -325,15 +325,17 @@ class UI(QMainWindow, QApplication):
     
     def loadImage(self):
         self.clearROIPlots()
-        file, _ = QFileDialog.getOpenFileName(self, 'Single File', '', "Images (*.png *.xpm *.jpg)")
-        file = Path(file)
-
-        if(file.exists()):
-            self.image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
-            self.ui.label_imageName.setText(file.name)
-            
-            self.setScene(self.ui.plot_origImg, self.image, 'img', dlayout= True) 
-            self.setScene(self.ui.plot_origHist, self.image, 'hist', dlayout= True) 
+        file = QFileDialog.getOpenFileName(self, 'Single File', '', "Images (*.png *.xpm *.jpg)")
+        
+        if(file[1] !=''):
+            file = Path(file[0])    
+    
+            if(file.exists()):
+                self.image = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+                self.ui.label_imageName.setText(file.name)
+                
+                self.setScene(self.ui.plot_origImg, self.image, 'img', dlayout= True) 
+                self.setScene(self.ui.plot_origHist, self.image, 'hist', dlayout= True) 
         return
     
     def getROI(self):
@@ -350,47 +352,49 @@ class UI(QMainWindow, QApplication):
         return
     
     def mapTumour(self):
-        file, _ = QFileDialog.getOpenFileName(self, 'Single File', '', "Images (*.png *.xpm *.jpg)")
-        file = Path(file)
-
-        if(file.exists()):
-            self.image_tumour = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
-            
-            if(self.roi_mask.max()>0):
-                img_regions = self.roi_mask/self.roi_mask.max() 
-            if(self.image_tumour.max()>0):
-                img_regions += self.image_tumour/self.image_tumour.max()
-            if(img_regions.max()>0):
-                img_regions = img_regions/img_regions.max()*255
-            
-            self.setScene(self.ui.plot_tumour, img_regions, 'img', dlayout= True) 
+        file = QFileDialog.getOpenFileName(self, 'Single File', '', "Images (*.png *.xpm *.jpg)")
+        
+        if(file[1] !=''):
+            file = Path(file[0])
+            if(file.exists()):
+                self.image_tumour = cv2.imread(file, cv2.IMREAD_GRAYSCALE)
+                
+                if(self.roi_mask.max()>0):
+                    img_regions = self.roi_mask/self.roi_mask.max() 
+                if(self.image_tumour.max()>0):
+                    img_regions += self.image_tumour/self.image_tumour.max()
+                if(img_regions.max()>0):
+                    img_regions = img_regions/img_regions.max()*255
+                
+                self.setScene(self.ui.plot_tumour, img_regions, 'img', dlayout= True) 
         return
     
     def exportROI(self):
         file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        file = Path(file)
-        if(file.exists()):
-            try:
-                # os.mkdir(file + r"/roi")
-                save_folder = file 
-                img_save = self.img_ROI/self.img_ROI.max()*255 if(self.img_ROI.max() != 0) else self.img_ROI
-                img_name = Path('save_folder, /ROI_Image_{}.png'.format(self.ui.label_imageName.text().split('_')[-1]))
-                #print(img_name)
-                cv2.imwrite(img_name, img_save)
-            except Exception as e:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Critical)
-                msg.setWindowTitle("Export Error!")
-                msg.setText(str(e))
-                msg.exec_()
-                msg.show()
-            else:
-                msg = QMessageBox()
-                msg.setIcon(QMessageBox.Information)
-                msg.setWindowTitle("Sucessful")
-                msg.setText('Export Completed! Export to {}'.format(file))
-                msg.exec_()
-                msg.show()
+        if(file !=''):
+            file = Path(file)
+            if(file.exists()):
+                try:
+                    # os.mkdir(file + r"/roi")
+                    save_folder = file 
+                    img_save = self.img_ROI/self.img_ROI.max()*255 if(self.img_ROI.max() != 0) else self.img_ROI
+                    img_name = Path(save_folder, 'ROI_Image_{}.png'.format(self.ui.label_imageName.text().split('_')[-1]))
+                    #print(img_name)
+                    cv2.imwrite(img_name, img_save)
+                except Exception as e:
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Critical)
+                    msg.setWindowTitle("Export Error!")
+                    msg.setText(str(e))
+                    msg.exec_()
+                    msg.show()
+                else:
+                    msg = QMessageBox()
+                    msg.setIcon(QMessageBox.Information)
+                    msg.setWindowTitle("Sucessful")
+                    msg.setText('Export Completed! Export to {}'.format(file))
+                    msg.exec_()
+                    msg.show()
         return
     
     def clearROIPlots(self):
@@ -407,14 +411,13 @@ class UI(QMainWindow, QApplication):
         return
     
     def loadROI(self):
-        file, _ = QFileDialog.getOpenFileName(self, 'Single File', '', "Images (*.png *.xpm *.jpg)")
-        print(file)
-        file = Path(file)    
-        print(file)
-        if(file.exists()):
-            self.imageROI = cv2.imread(file)
-            self.ui.label_ROIName.setText(file.name)
-            self.setScene(self.ui.plot_TumourROIImage, cv2.cvtColor(self.imageROI, cv2.COLOR_BGR2GRAY), 'img', dlayout= True) 
+        file = QFileDialog.getOpenFileName(self, 'Single File', '', "Images (*.png *.xpm *.jpg)")
+        if(file[1] !=''):
+            file = Path(file[0])
+            if(file.exists()):
+                self.imageROI = cv2.imread(file)
+                self.ui.label_ROIName.setText(file.name)
+                self.setScene(self.ui.plot_TumourROIImage, cv2.cvtColor(self.imageROI, cv2.COLOR_BGR2GRAY), 'img', dlayout= True) 
         return
     
     def detectTumour(self):
@@ -446,23 +449,24 @@ class UI(QMainWindow, QApplication):
         return
     
     def validate(self):
-        file, _ = QFileDialog.getOpenFileName(self, 'Single File', '', "Images (*.png *.xpm *.jpg)")
-        file = Path(file)
-
-        if(file.exists()):
-            label = cv2.imread(file, cv2.COLOR_BGR2GRAY)/255
-            label = label.reshape(label.shape[0], label.shape[1], 1)
-            
-            if(self.results[0].cpu().masks != None):
+        file = QFileDialog.getOpenFileName(self, 'Single File', '', "Images (*.png *.xpm *.jpg)")
+        
+        if(file[1] !=''):
+            file = Path(file[0])
+            if(file.exists()):
+                label = cv2.imread(file, cv2.COLOR_BGR2GRAY)/255
+                label = label.reshape(label.shape[0], label.shape[1], 1)
                 
-                self.dice_score = self.model.diceScore(label)
-                self.ui.label_dice.setText(str(np.format_float_positional(self.dice_score[0]['dice'], precision=3)))
-                # print('Dice Score: {}'.format(dice_score))
-            else:
-                self.ui.label_dice.setText('nan')
-                
-            # plot
-            self.setScene(self.ui.plot_valImage, self.predImg[0]['predImg'], 'img', dlayout= True)  
+                if(self.results[0].cpu().masks != None):
+                    
+                    self.dice_score = self.model.diceScore(label)
+                    self.ui.label_dice.setText(str(np.format_float_positional(self.dice_score[0]['dice'], precision=3)))
+                    # print('Dice Score: {}'.format(dice_score))
+                else:
+                    self.ui.label_dice.setText('nan')
+                    
+                # plot
+                self.setScene(self.ui.plot_valImage, self.predImg[0]['predImg'], 'img', dlayout= True)  
         return
     
     def getTFeatures(self):
@@ -505,37 +509,39 @@ class UI(QMainWindow, QApplication):
     def saveSummary(self):
         # CSVs
         file = str(QFileDialog.getExistingDirectory(self, "Select Directory"))
-        file = Path(file)
         
-        if(file.exists()):
-            save_folder_output_resultsMri = file
-            # dice_score
-            if( hasattr(self, 'dice_score') ):
-                keys = self.dice_score[0].keys()
-                with open(Path(save_folder_output_resultsMri, 'dice_score.csv'), 'w', newline='') as f:
-                    dict_writer = csv.DictWriter(f, keys)
-                    dict_writer.writeheader()
-                    dict_writer.writerows(self.dice_score)
+        if(file !=''):
+            file = Path(file)
         
-            # Tumour features
-            if( hasattr(self, 'tfeatures') ):
-                keys = self.tfeatures[0].keys()
-                with open(Path(save_folder_output_resultsMri, 'tfeatures.csv'), 'w', newline='') as f:
-                    dict_writer = csv.DictWriter(f, keys)
-                    dict_writer.writeheader()
-                    dict_writer.writerows(self.tfeatures)
+            if(file.exists()):
+                save_folder_output_resultsMri = file
+                # dice_score
+                if( hasattr(self, 'dice_score') ):
+                    keys = self.dice_score[0].keys()
+                    with open(Path(save_folder_output_resultsMri, 'dice_score.csv'), 'w', newline='') as f:
+                        dict_writer = csv.DictWriter(f, keys)
+                        dict_writer.writeheader()
+                        dict_writer.writerows(self.dice_score)
             
-            # Segmentation images
-            for i in range(len(self.predImg)):
-                img_name = Path(save_folder_output_resultsMri, 'predImg_Z{}.png'.format(i))
-                cv2.imwrite(img_name, self.predImg[0]['predImg'])
+                # Tumour features
+                if( hasattr(self, 'tfeatures') ):
+                    keys = self.tfeatures[0].keys()
+                    with open(Path(save_folder_output_resultsMri, 'tfeatures.csv'), 'w', newline='') as f:
+                        dict_writer = csv.DictWriter(f, keys)
+                        dict_writer.writeheader()
+                        dict_writer.writerows(self.tfeatures)
                 
-            msg = QMessageBox()
-            msg.setIcon(QMessageBox.Information)
-            msg.setWindowTitle("Sucessful")
-            msg.setText('Export Completed! Export to {}'.format(file))
-            msg.exec_()
-            msg.show()
+                # Segmentation images
+                for i in range(len(self.predImg)):
+                    img_name = Path(save_folder_output_resultsMri, 'predImg_Z{}.png'.format(i))
+                    cv2.imwrite(img_name, self.predImg[0]['predImg'])
+                    
+                msg = QMessageBox()
+                msg.setIcon(QMessageBox.Information)
+                msg.setWindowTitle("Sucessful")
+                msg.setText('Export Completed! Export to {}'.format(file))
+                msg.exec_()
+                msg.show()
         return
     
     def closeEvent(self, a):

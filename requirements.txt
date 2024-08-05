@@ -1,8 +1,12 @@
 torch==2.3.1 
 torchvision==0.18.1 
 torchaudio==2.3.1
-nibabel
-PyQt5
-scikit_learn
-ultralytics
-jupyterlab
+nibabel==5.2.1
+PyQt5==5.15.11
+PyQt5_sip==12.15.0
+scikit_learn==1.5.1
+ultralytics==8.2.68
+
+
+
+
