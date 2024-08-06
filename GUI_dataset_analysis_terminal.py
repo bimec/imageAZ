@@ -16,6 +16,8 @@ from PyQt5.QtWidgets import QMainWindow, QApplication, QMessageBox, QFileDialog,
 from PyQt5 import uic, QtCore, QtWidgets
 
 import sys
+import os
+os.environ["XDG_SESSION_TYPE"] = "xcb"
 
 import GUI.main as GUI
 print("GUI Imported")
@@ -27,8 +29,3 @@ window.setWindowTitle("Image-AZ GUI")
 window.show() 
 app.exec()
 print("App Closed!")
-
-
-
-
-
