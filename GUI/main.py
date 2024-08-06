@@ -105,56 +105,44 @@ class UI(QMainWindow, QApplication):
     
     def updateRSB_X(self):
         plt.close('all')
-        self.ui.sb_rawX.setDisabled(True)
         img_data_yz = self.data_d[self.ui.sb_rawX.value(), :, :]
         self.setScene(self.ui.plot_ImgYZ, img_data_yz, 'img', dlayout= False)   
-        self.setScene(self.ui.plot_HistYZ, img_data_yz, 'hist', dlayout= True) # YZ   
-        self.ui.sb_rawZ.setDisabled(False)
+        self.setScene(self.ui.plot_HistYZ, img_data_yz, 'hist', dlayout= True) # YZ 
         return
     
     def updateRSB_Z(self):
         plt.close('all')
-        self.ui.sb_rawZ.setDisabled(True)
         img_data_xy = self.data_d[:, :, self.ui.sb_rawZ.value()] #Z slider 
         self.setScene(self.ui.plot_ImgXY, img_data_xy, 'img', dlayout= True) # XY     
         self.setScene(self.ui.plot_HistXY, img_data_xy, 'hist', dlayout= True) # XY
-        self.ui.sb_rawZ.setDisabled(False)
         return
     
     def updateRSB_Y(self):
         plt.close('all')
-        self.ui.sb_rawY.setDisabled(True)
         img_data_zx = self.data_d[:, self.ui.sb_rawY.value(), :]
         self.setScene(self.ui.plot_ImgZX, img_data_zx.T, 'img', dlayout= False)       
-        self.setScene(self.ui.plot_HistZX, img_data_zx, 'hist', dlayout= True) #ZX        
-        elf.ui.sb_rawY.setDisabled(False)
+        self.setScene(self.ui.plot_HistZX, img_data_zx, 'hist', dlayout= True) #ZX   
         return
     
     def updateTSB_X(self):
         plt.close('all')
-        self.ui.sb_tumourX.setDisabled(True)
         img_data_tyz = (self.data_dl*self.data_d)[self.ui.sb_tumourX.value(), :, :] # X slider
         self.setScene(self.ui.plot_TImgYZ, img_data_tyz, 'img', dlayout= False) # YZ
-        self.setScene(self.ui.plot_THistYZ, img_data_tyz, 'hist', dlayout= True, range=(1, max(2, img_data_tyz.max()))) # YZ      
-        elf.ui.sb_tumourX.setDisabled(False)
+        self.setScene(self.ui.plot_THistYZ, img_data_tyz, 'hist', dlayout= True, range=(1, max(2, img_data_tyz.max()))) # YZ    
         return
     
     def updateTSB_Y(self):
         plt.close('all')
-        self.ui.sb_tumourY.setDisabled(True)
         img_data_tzx = (self.data_dl*self.data_d)[:, self.ui.sb_tumourY.value(), :] #Y Slider
         self.setScene(self.ui.plot_TImgZX, img_data_tzx.T, 'img', dlayout= False) #ZX
-        self.setScene(self.ui.plot_THistZX, img_data_tzx, 'hist', dlayout= True, range=(1, max(2, img_data_tzx.max()))) #ZX      
-        elf.ui.sb_tumourY.setDisabled(False)
+        self.setScene(self.ui.plot_THistZX, img_data_tzx, 'hist', dlayout= True, range=(1, max(2, img_data_tzx.max()))) #ZX 
         return
     
     def updateTSB_Z(self):  
         plt.close('all')  
-        self.ui.sb_tumourZ.setDisabled(True)
         img_data_txy = (self.data_dl*self.data_d)[:, :, self.ui.sb_tumourZ.value()] #Z slider 
         self.setScene(self.ui.plot_TImgXY, img_data_txy, 'img', dlayout= True) # XY
-        self.setScene(self.ui.plot_THistXY, img_data_txy, 'hist', dlayout= True, range=(1, max(2, img_data_txy.max()))) # XY      
-        elf.ui.sb_tumourZ.setDisabled(False)
+        self.setScene(self.ui.plot_THistXY, img_data_txy, 'hist', dlayout= True, range=(1, max(2, img_data_txy.max()))) # XY 
         return
     
     def setScene(self, scene, data, dtype, **kwargs):
